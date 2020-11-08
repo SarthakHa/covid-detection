@@ -1,8 +1,8 @@
 import cv2
 import sys
-# from PIL import Image
+from PIL import Image
 
-# from google.cloud import automl
+from google.cloud import automl
 
 # TODO(developer): Uncomment and set the following variables
 # project_id = "YOUR_PROJECT_ID"
