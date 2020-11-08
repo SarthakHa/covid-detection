@@ -23,6 +23,7 @@ def detectFaces(imageFile):
         minSize=(30, 30),
         flags = cv2.CASCADE_SCALE_IMAGE
     )
+    print("Found {0} faces".format(len(faces)))
 
     # Output list of coordinate tuples (startX, startY, endX, endY)
     coordinates = []
@@ -32,9 +33,10 @@ def detectFaces(imageFile):
 
 
 #tests - draws rectangles around faces
-faces = detectFaces("people.jpg")
-image = cv2.imread("people.jpg")
+faces = detectFaces("demo_images/people_wearing_masks.jpg")
+image = cv2.imread("demo_images/people_wearing_masks.jpg")
 for face in faces:
     cv2.rectangle(image, (face[0], face[1]), (face[2], face[3]), (0, 0, 255), 2)
+    print("{} x {}".format(face[0] - face[2], face[3] - face[1]))
 cv2.imshow("Faces found", image)
 cv2.waitKey(0)
