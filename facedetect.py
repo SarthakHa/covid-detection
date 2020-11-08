@@ -108,11 +108,12 @@ def predictionCall(file_path_image):
             print("Person " + count + " is NOT wearing a mask :(")
 
 print("Welcome to mask detection. Created to facilitate the enforcement of mandatory mask-wearing rules in public spaces")
-print("Example 1 (Close Up): ")
+print("Time taken to predict is contingent on strength of internet connection. Prediction is done on google cloud AutoML")
+print("\nExample 1 (Close Up): ")
 predictionCall("CloseUp.jpg")
-print("Example 2 (Wearing mask): ")
+print("\nExample 2 (Wearing mask): ")
 predictionCall("mask.jpg")
-print("Example 3 (Not Wearing Mask): ")
+print("\nExample 3 (Not Wearing Mask Group): ")
 predictionCall("nomask.jpg")
 
 
