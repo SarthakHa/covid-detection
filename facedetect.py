@@ -7,7 +7,6 @@ from google.cloud import automl
 # TODO(developer): Uncomment and set the following variables
 # project_id = "YOUR_PROJECT_ID"
 # model_id = "YOUR_MODEL_ID"
-file_path_image = "mask.jpg"
 
 # Take name of image file as string parameter, output list of start/end coordinates
 def detectFaces(imageFile):
@@ -44,8 +43,7 @@ def detectFaces(imageFile):
         coordinates.append((x1, y1, x2, y2))
     return coordinates
 
-#returns faces detected in image
-faces = detectFaces(file_path_image)
+
 
 #GCloud prediction client
 prediction_client = automl.PredictionServiceClient()
@@ -55,55 +53,69 @@ model_full_id = automl.AutoMlClient.model_path(
     project_id, "us-central1", model_id
 )
 
-count = 0
-for face in faces:
-    count = count + 1
-    im = Image.open(file_path)
-    xTopLeft = face[0]
-    yTopLeft = face[1]
-    xBotRight = face[2]
-    yBotRight = face[3]
-    im1 = im.crop((xTopLeft, yTopLeft, xBotRight, yBotRight))
-    img_path = "Predict" + count + ".jpg"
-    im1 = im1.save(img_path)
+def predictionCall(file_path_image):
+    #returns faces detected in image
+    faces = detectFaces(file_path_image)
 
-    # Read the file.
-    with open(img_path, "rb") as content_file:
-        content = content_file.read()
+    count = 0
+    for face in faces:
+        count = count + 1
+        im = Image.open(file_path)
+        xTopLeft = face[0]
+        yTopLeft = face[1]
+        xBotRight = face[2]
+        yBotRight = face[3]
+        im1 = im.crop((xTopLeft, yTopLeft, xBotRight, yBotRight))
+        img_path = "Predict" + count + ".jpg"
+        im1 = im1.save(img_path)
 
-    image = automl.Image(image_bytes=content)
-    payload = automl.ExamplePayload(image=image)
-    params = {"score_threshold": "0.8"}
+        # Read the file.
+        with open(img_path, "rb") as content_file:
+            content = content_file.read()
 
-    request = automl.PredictRequest(
-        name=model_full_id,
-        payload=payload,
-        params=params
-    )
+        image = automl.Image(image_bytes=content)
+        payload = automl.ExamplePayload(image=image)
+        params = {"score_threshold": "0.8"}
 
-    response = prediction_client.predict(request=request)
+        request = automl.PredictRequest(
+            name=model_full_id,
+            payload=payload,
+            params=params
+        )
 
-    mask = False
-    unmask = False
-    both = False
+        response = prediction_client.predict(request=request)
 
-    print("Prediction results:")
-    for result in response.payload:
-        if "UnmaskedPeople" == result.display_name:
-            unmask = True
-        if "MaskedPeople" == result.display_name:
-            mask = True
-        #print("Predicted class name: {}".format(result.display_name))
-        #print("Predicted class score: {}".format(result.classification.score))
-    if mask == True and unmask == True:
-        both = True
+        mask = False
+        unmask = False
+        both = False
 
-    if both == True:
-        print("Person " + count + ": Error. Both Mask and Unmask detected")
-    elif mask == True:
-        print("Person " + count + " is wearing mask :)")
-    else:
-        print("Person " + count + " is NOT wearing a mask :(")
+        print("Prediction results:")
+        for result in response.payload:
+            if "UnmaskedPeople" == result.display_name:
+                unmask = True
+            if "MaskedPeople" == result.display_name:
+                mask = True
+            #print("Predicted class name: {}".format(result.display_name))
+            #print("Predicted class score: {}".format(result.classification.score))
+        if mask == True and unmask == True:
+            both = True
+
+        if both == True:
+            print("Person " + count + ": Error. Both Mask and Unmask detected")
+        elif mask == True:
+            print("Person " + count + " is wearing mask :)")
+        else:
+            print("Person " + count + " is NOT wearing a mask :(")
+
+print("Welcome to mask detection. Created to facilitate the enforcement of mandatory mask-wearing rules in public spaces")
+print("Example 1 (Close Up): ")
+predictionCall("CloseUp.jpg")
+print("Example 2 (Wearing mask): ")
+predictionCall("mask.jpg")
+print("Example 3 (Not Wearing Mask): ")
+predictionCall("nomask.jpg")
+
+
 
 """
 #test - draws rectangles around faces
