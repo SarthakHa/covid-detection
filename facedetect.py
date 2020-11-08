@@ -43,8 +43,6 @@ def detectFaces(imageFile):
         coordinates.append((x1, y1, x2, y2))
     return coordinates
 
-
-
 #GCloud prediction client
 prediction_client = automl.PredictionServiceClient()
 
@@ -101,11 +99,11 @@ def predictionCall(file_path_image):
             both = True
 
         if both == True:
-            print("Person " + count + ": Error. Both Mask and Unmask detected")
+            print("Person " + str(count) + ": Error. Both Mask and Unmask detected")
         elif mask == True:
-            print("Person " + count + " is wearing mask :)")
+            print("Person " + str(count) + " is wearing mask :)")
         else:
-            print("Person " + count + " is NOT wearing a mask :(")
+            print("Person " + str(count) + " is NOT wearing a mask :(")
 
 print("Welcome to mask detection. Created to facilitate the enforcement of mandatory mask-wearing rules in public spaces")
 print("Time taken to predict is contingent on strength of internet connection. Prediction is done on google cloud AutoML")
