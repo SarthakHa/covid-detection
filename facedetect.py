@@ -30,7 +30,7 @@ def detectFaces(imageFile):
         minSize=(30, 30),
         flags = cv2.CASCADE_SCALE_IMAGE
     )
-    print("Found {0} faces".format(len(faces)))
+    #print("Found {0} faces".format(len(faces)))
 
     # Output list of coordinate tuples (startX, startY, endX, endY)
     coordinates = []
@@ -39,7 +39,7 @@ def detectFaces(imageFile):
         y1 = max(int(y - .25 * h), 0)
         x2 = min(int(x + 1.25 * w), image.shape[1] - 1)
         y2 = min(int(y + 1.25 * h), image.shape[0] - 1)
-        print (x1, y1, x2, y2)
+        #print (x1, y1, x2, y2)
         coordinates.append((x1, y1, x2, y2))
     return coordinates
 
