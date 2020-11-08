@@ -6,7 +6,7 @@ from google.cloud import automl
 
 # TODO(developer): Uncomment and set the following variables
 project_id = "noted-will-294917"
-model_id = "untitled_1604780896475"
+model_id = "ICN5340972289921908736"
 
 # Take name of image file as string parameter, output list of start/end coordinates
 def detectFaces(imageFile):
@@ -60,13 +60,13 @@ def predictionCall(file_path_image):
     count = 0
     for face in faces:
         count = count + 1
-        im = Image.open(file_path)
+        im = Image.open(file_path_image)
         xTopLeft = face[0]
         yTopLeft = face[1]
         xBotRight = face[2]
         yBotRight = face[3]
         im1 = im.crop((xTopLeft, yTopLeft, xBotRight, yBotRight))
-        img_path = "Predict" + count + ".jpg"
+        img_path = "Predict" + str(count) + ".jpg"
         im1 = im1.save(img_path)
 
         # Read the file.
