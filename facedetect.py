@@ -1,5 +1,13 @@
 import cv2
 import sys
+# from PIL import Image
+
+# from google.cloud import automl
+
+# TODO(developer): Uncomment and set the following variables
+# project_id = "YOUR_PROJECT_ID"
+# model_id = "YOUR_MODEL_ID"
+file_path_image = "mask.jpg"
 
 # Take name of image file as string parameter, output list of start/end coordinates
 def detectFaces(imageFile):
@@ -28,15 +36,82 @@ def detectFaces(imageFile):
     # Output list of coordinate tuples (startX, startY, endX, endY)
     coordinates = []
     for (x, y, w, h) in faces:
-        coordinates.append((x, y, x + w, y + h))
+        x1 = max(int(x - .25 * w), 0)
+        y1 = max(int(y - .25 * h), 0)
+        x2 = min(int(x + 1.25 * w), image.shape[1] - 1)
+        y2 = min(int(y + 1.25 * h), image.shape[0] - 1)
+        print (x1, y1, x2, y2)
+        coordinates.append((x1, y1, x2, y2))
     return coordinates
 
+#returns faces detected in image
+faces = detectFaces(file_path_image)
 
-#tests - draws rectangles around faces
-faces = detectFaces("demo_images/people_wearing_masks.jpg")
-image = cv2.imread("demo_images/people_wearing_masks.jpg")
+#GCloud prediction client
+prediction_client = automl.PredictionServiceClient()
+
+# Get the full path of the model.
+model_full_id = automl.AutoMlClient.model_path(
+    project_id, "us-central1", model_id
+)
+
+count = 0
 for face in faces:
-    cv2.rectangle(image, (face[0], face[1]), (face[2], face[3]), (0, 0, 255), 2)
+    count = count + 1
+    im = Image.open(file_path)
+    xTopLeft = face[0]
+    yTopLeft = face[1]
+    xBotRight = face[2]
+    yBotRight = face[3]
+    im1 = im.crop((xTopLeft, yTopLeft, xBotRight, yBotRight))
+    img_path = "Predict" + count + ".jpg"
+    im1 = im1.save(img_path)
+
+    # Read the file.
+    with open(img_path, "rb") as content_file:
+        content = content_file.read()
+
+    image = automl.Image(image_bytes=content)
+    payload = automl.ExamplePayload(image=image)
+    params = {"score_threshold": "0.8"}
+
+    request = automl.PredictRequest(
+        name=model_full_id,
+        payload=payload,
+        params=params
+    )
+
+    response = prediction_client.predict(request=request)
+
+    mask = False
+    unmask = False
+    both = False
+
+    print("Prediction results:")
+    for result in response.payload:
+        if "UnmaskedPeople" == result.display_name:
+            unmask = True
+        if "MaskedPeople" == result.display_name:
+            mask = True
+        #print("Predicted class name: {}".format(result.display_name))
+        #print("Predicted class score: {}".format(result.classification.score))
+    if mask == True and unmask == True:
+        both = True
+
+    if both == True:
+        print("Person " + count + ": Error. Both Mask and Unmask detected")
+    elif mask == True:
+        print("Person " + count + " is wearing mask :)")
+    else:
+        print("Person " + count + " is NOT wearing a mask :(")
+
+"""
+#test - draws rectangles around faces
+faces = detectFaces(file_path_image)
+image = cv2.imread(file_path_image)
+for face in faces:
+    cv2.rectangle(image, (face[0], face[1]), (face[2], face[3]), (255, 0, 255), 2)
     print("{} x {}".format(face[0] - face[2], face[3] - face[1]))
 cv2.imshow("Faces found", image)
 cv2.waitKey(0)
+"""
