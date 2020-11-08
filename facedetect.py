@@ -5,8 +5,8 @@ from PIL import Image
 from google.cloud import automl
 
 # TODO(developer): Uncomment and set the following variables
-# project_id = "YOUR_PROJECT_ID"
-# model_id = "YOUR_MODEL_ID"
+project_id = "noted-will-294917"
+model_id = "untitled_1604780896475"
 
 # Take name of image file as string parameter, output list of start/end coordinates
 def detectFaces(imageFile):
